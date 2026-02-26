@@ -1,0 +1,59 @@
+.setup-container {
+  height: 100vh;
+  background: linear-gradient(135deg, #1f2937, #111827);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.setup-card {
+  background: #ffffff;
+  color: #111;
+  padding: 40px;
+  border-radius: 12px;
+  width: 380px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  text-align: left;
+}
+
+.setup-card h1 {
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.setup-card label {
+  font-weight: 600;
+  margin-top: 15px;
+  display: block;
+}
+
+.setup-card input,
+.setup-card select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.setup-card button {
+  width: 100%;
+  margin-top: 25px;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.setup-card button:hover {
+  background: #1e40af;
+}

@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Workout from "./pages/Workout";
+import Dashboard from "./pages/Dashboard";
+import { loadSessions, saveSessions } from "./data/storage";
+import Setup from "./pages/Setup";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+export default function App() {
+const [sessions, setSessions] = useState([]);
+
+useEffect(() => {
+setSessions(loadSessions());
+}, []);
+
+const addSession = (session) => {
+const updated = [...sessions, session];
+setSessions(updated);
+saveSessions(updated);
+};
+
+const [userProfile, setUserProfile] = useState(null);
+const handleStart = (profile) => {
+  setUserProfile(profile);
+};
+
+
+return ( <BrowserRouter> <Navbar /> <Routes>
+<Route
+  path="/"
+  element={
+    !userProfile ? (
+      <Setup onStart={handleStart} />
+    ) : (
+      <Workout saveSession={addSession} userProfile={userProfile} />
+    )
+  }
+/>
+<Route path="/dashboard" element={<Dashboard sessions={sessions} />} /> </Routes> </BrowserRouter>
+);
 }
-
-export default App;
