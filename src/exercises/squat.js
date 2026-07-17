@@ -6,38 +6,74 @@ export function analyseSquat(landmarks, state, metrics) {
   const ankle = landmarks[28];
 
   const angle = calculateAngle(hip, knee, ankle);
+  const depth = Math.abs(hip.y - knee.y);
 
-  // --- store latest angle for live feedback ---
   metrics.lastAngle = angle;
 
-  // --- personalised scaling based on body proportions ---
-  const femurLength = Math.hypot(hip.x - knee.x, hip.y - knee.y);
-  const dynamicThreshold = 70 + femurLength * 100;
+  if (!metrics.currentRep) {
+    metrics.currentRep = {
+      minKneeAngle: 999,
+      maxDepth: 0,
+      bestLandmarks: null,
+    };
+  }
 
-  // Detect downward phase
-  if (angle < dynamicThreshold && state.stage === "up") {
+  if (angle < metrics.currentRep.minKneeAngle) {
+    metrics.currentRep.minKneeAngle = angle;
+    metrics.currentRep.bestLandmarks = landmarks;
+  }
+
+  if (depth > metrics.currentRep.maxDepth) {
+    metrics.currentRep.maxDepth = depth;
+  }
+
+  const STAND_ANGLE = 150;
+  const SQUAT_ANGLE = 110;
+
+  if (!state.stage) {
+    state.stage = "standing";
+  }
+
+  // User is upright
+  if (angle > STAND_ANGLE && state.stage !== "down") {
+    state.stage = "standing";
+  }
+
+  // User reaches squat depth
+  if (angle < SQUAT_ANGLE && state.stage === "standing") {
     state.stage = "down";
   }
 
-  // Detect completed rep (upward phase)
-  if (angle > 160 && state.stage === "down") {
-    state.stage = "up";
-    state.reps += 1;
+  // Count when user comes back up
+// Detect completed rep when user comes back up
+if (angle > STAND_ANGLE && state.stage === "down") {
+  state.stage = "standing";
 
-    const now = performance.now();
+  state.reps += 1;      // ADD THIS BACK
+  state.repCompleted = true;
 
-    // --- calculate rep duration (tempo analysis) ---
-    if (metrics.lastRepTimestamp) {
-      metrics.repTime = (now - metrics.lastRepTimestamp) / 1000;
-    }
+  const now = performance.now();
 
-    metrics.lastRepTimestamp = now;
-
-    // Keep original logging for research dataset
-    metrics.repTimes.push(now);
+  if (metrics.lastRepTimestamp) {
+    metrics.repTime = (now - metrics.lastRepTimestamp) / 1000;
   }
 
-  // Store angle history for later statistical analysis
+  metrics.lastRepTimestamp = now;
+  metrics.repTimes.push(now);
+
+  metrics.completedRep = {
+    minKneeAngle: metrics.currentRep.minKneeAngle,
+    maxDepth: metrics.currentRep.maxDepth,
+    bestLandmarks: metrics.currentRep.bestLandmarks,
+  };
+
+  metrics.currentRep = {
+    minKneeAngle: 999,
+    maxDepth: 0,
+    bestLandmarks: null,
+  };
+}
+
   metrics.angles.push(angle);
 
   return state;

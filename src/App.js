@@ -1,42 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Workout from "./pages/Workout";
+import PredictionWorkout from "./pages/PredictionWorkout";
+import DataCollectionWorkout from "./pages/DataCollectionWorkout";
 import Dashboard from "./pages/Dashboard";
-import { loadSessions, saveSessions } from "./data/storage";
 import Setup from "./pages/Setup";
-
+import Login from "./pages/Login";
+import { AuthProvider } from "./context/AuthContext";
+import { loadSessions, saveSessions } from "./data/storage";
 
 export default function App() {
-const [sessions, setSessions] = useState([]);
+  const [sessions, setSessions] = useState([]);
 
-useEffect(() => {
-setSessions(loadSessions());
-}, []);
+  useEffect(() => {
+    setSessions(loadSessions());
+  }, []);
 
-const addSession = (session) => {
-const updated = [...sessions, session];
-setSessions(updated);
-saveSessions(updated);
-};
+  const addSession = (session) => {
+    const updated = [...sessions, session];
+    setSessions(updated);
+    saveSessions(updated);
+  };
 
-const [userProfile, setUserProfile] = useState(null);
-const handleStart = (profile) => {
-  setUserProfile(profile);
-};
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
 
-
-return ( <BrowserRouter> <Navbar /> <Routes>
-<Route
-  path="/"
-  element={
-    !userProfile ? (
-      <Setup onStart={handleStart} />
-    ) : (
-      <Workout saveSession={addSession} userProfile={userProfile} />
-    )
-  }
-/>
-<Route path="/dashboard" element={<Dashboard sessions={sessions} />} /> </Routes> </BrowserRouter>
-);
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Setup />} />
+          <Route path="/workout" element={<PredictionWorkout saveSession={addSession} />} />
+          <Route path="/data-collection" element={<DataCollectionWorkout saveSession={addSession} />} />
+          <Route path="/dashboard" element={<Dashboard sessions={sessions} />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }

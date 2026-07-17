@@ -1,19 +1,23 @@
-import { useEffect } from "react";
-import { Pose } from "@mediapipe/pose";
+import { useEffect, useRef } from "react";
 import { Camera } from "@mediapipe/camera_utils";
+import { Pose } from "@mediapipe/pose";
 
 export default function usePose(webcamRef, onResults) {
-  useEffect(() => {
-    if (!webcamRef.current) return;
+  const onResultsRef = useRef(onResults);
 
+  useEffect(() => {
+    onResultsRef.current = onResults;
+  }, [onResults]);
+
+  useEffect(() => {
     let camera = null;
     let pose = null;
     let isActive = true;
 
-    const init = async () => {
-      // Wait until video is actually ready
+    const startPose = async () => {
+      if (!webcamRef.current || !webcamRef.current.video) return;
+
       const video = webcamRef.current.video;
-      if (!video) return;
 
       pose = new Pose({
         locateFile: (file) =>
@@ -21,7 +25,7 @@ export default function usePose(webcamRef, onResults) {
       });
 
       pose.setOptions({
-        modelComplexity: 1,
+        modelComplexity: 0,
         smoothLandmarks: true,
         enableSegmentation: false,
         minDetectionConfidence: 0.5,
@@ -29,30 +33,41 @@ export default function usePose(webcamRef, onResults) {
       });
 
       pose.onResults((results) => {
-        if (isActive) onResults(results);
+        if (isActive) {
+          onResultsRef.current(results);
+        }
       });
 
       camera = new Camera(video, {
         onFrame: async () => {
-          if (!isActive || !video) return;
-          await pose.send({ image: video });
+          if (!isActive || !pose || !video) return;
+
+          try {
+            await pose.send({ image: video });
+          } catch (error) {
+            console.warn("Pose frame skipped:", error);
+          }
         },
-        width: 640,
-        height: 480,
+        width: 480,
+        height: 360,
       });
 
       camera.start();
     };
 
-    init();
+    const timer = setTimeout(startPose, 500);
 
-    // ✅ THIS IS THE IMPORTANT CLEANUP
     return () => {
       isActive = false;
+      clearTimeout(timer);
 
-      if (camera) camera.stop();
+      if (camera) {
+        camera.stop();
+      }
 
-      if (pose) pose.close();
+      if (pose) {
+        pose.close();
+      }
     };
-  }, [webcamRef, onResults]);
+  }, [webcamRef]);
 }
