@@ -1,71 +1,238 @@
-# Getting Started with Create React App
+# AR-Based Fitness System for Personalized Home Workout Guidance and Performance Tracking
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A browser-based intelligent fitness application that combines **Computer Vision**, **Machine Learning**, and **Augmented Reality** to provide real-time home workout guidance and posture assessment.
 
-## Available Scripts
+The system performs **all pose estimation, biomechanical feature extraction, and machine learning inference locally within the browser**, ensuring low latency and improved privacy.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Secure login using Firebase Authentication
+- Real-time pose estimation using MediaPipe Pose
+- Exercise form classification using Random Forest classifiers
+- Biomechanical feature extraction
+- Real-time repetition counting
+- Live posture feedback
+- Augmented Reality exercise demonstrations
+- Workout dashboard with performance statistics
+- Browser-based Progressive Web Application (PWA)
+- No cloud storage of workout or profile data
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Supported Exercises
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Squat
+- Bicep Curl
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Technologies Used
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Frontend
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- React.js
+- React Router
+- HTML5
+- CSS3
 
-### `npm run eject`
+### Computer Vision
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- MediaPipe Pose
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Machine Learning
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Random Forest Classifiers
+- JSON Model Deployment
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Augmented Reality
 
-## Learn More
+- Three.js
+- React Three Fiber
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Authentication
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Firebase Authentication
 
-### Code Splitting
+### Browser APIs
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- WebRTC
+- MediaDevices API
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## System Architecture
 
-### Making a Progressive Web App
+```
+Webcam
+   │
+   ▼
+MediaPipe Pose
+   │
+   ▼
+Biomechanical Feature Extraction
+   │
+   ▼
+Random Forest Classification
+   │
+   ▼
+Real-Time Feedback
+   │
+   ▼
+Dashboard (React Runtime State)
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Data Processing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The application processes:
 
-### Deployment
+- Pose landmarks
+- Joint angles
+- Body symmetry
+- Exercise depth
+- Repetition speed
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+These biomechanical features are used by lightweight Random Forest classifiers to determine whether an exercise repetition is performed correctly.
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# ARFitness_DissertationProject
+## Privacy
+
+The application follows a privacy-by-design approach.
+
+- Pose estimation is performed locally.
+- Machine learning inference runs entirely within the browser.
+- Webcam images and videos are never stored.
+- Workout statistics and profile information exist only during the active browser session using React state.
+- No workout data are transmitted to external servers.
+
+Firebase Authentication is used solely for secure access to the demonstration account.
+
+---
+
+## Machine Learning Models
+
+Separate Random Forest models are provided for each supported exercise.
+
+Current models:
+
+- Squat Random Forest
+- Bicep Curl Random Forest
+
+Both models are deployed as lightweight JSON files for browser-based inference.
+
+---
+
+## Installation
+
+Clone the repository.
+
+```bash
+git clone https://github.com/yourusername/ar-fitness.git
+```
+
+Navigate into the project.
+
+```bash
+cd ar-fitness
+```
+
+Install dependencies.
+
+```bash
+npm install
+```
+
+Run the development server.
+
+```bash
+npm start
+```
+
+The application will be available at:
+
+```
+http://localhost:3000
+```
+
+---
+
+## Project Structure
+
+```
+src/
+│
+├── components/
+├── context/
+├── hooks/
+├── pages/
+├── services/
+├── utils/
+├── data/
+├── App.js
+└── index.js
+
+public/
+│
+├── squat_random_forest_model.json
+├── bicepcurl_random_forest_model.json
+└── assets/
+```
+
+---
+
+## Demo Account
+
+A demonstration account is provided for evaluation purposes.
+
+Firebase Authentication is used only for secure login.
+
+---
+
+## Research Purpose
+
+This project was developed as part of an MSc dissertation investigating browser-based intelligent fitness systems using:
+
+- Computer Vision
+- Machine Learning
+- Augmented Reality
+- Human Pose Estimation
+- Biomechanical Feature Analysis
+
+---
+
+## Ethical Considerations
+
+- No participant exercise data were collected for machine learning training.
+- Synthetic biomechanical datasets were used to train the classification models.
+- No webcam images or videos are stored.
+- Workout information is maintained only during the active browser session.
+- The demonstration account is used solely for evaluating the application's functionality.
+
+---
+
+## Future Improvements
+
+- Additional supported exercises
+- Deep learning-based posture classification
+- Personalised workout recommendations
+- Adaptive coaching
+- Formal usability evaluation
+- Evaluation using real-world exercise datasets collected with appropriate ethical approval
+
+---
+
+## Author
+
+**Siddhartha Ratna Shakya**
+
+MSc Computer Science
+
+---
+
+## License
+
+This project is intended for academic and research purposes.
