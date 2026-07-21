@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { saveUserProfile } from "../services/profileService";
 
 
-export default function Setup({ onStart }) {
+export default function Setup({ saveProfile }) {
 const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -42,18 +42,27 @@ const { currentUser } = useAuth();
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+
+//   if (!currentUser) return;
+
+//   await saveUserProfile(currentUser.uid, {
+//     ...form,
+//     email: currentUser.email,
+//     name: currentUser.displayName,
+//   });
+
+//   localStorage.setItem("fitnessProfile", JSON.stringify(form));
+
+//   navigate("/dashboard");
+// };
+
+
+const handleSubmit = (e) => {
   e.preventDefault();
 
-  if (!currentUser) return;
-
-  await saveUserProfile(currentUser.uid, {
-    ...form,
-    email: currentUser.email,
-    name: currentUser.displayName,
-  });
-
-  localStorage.setItem("fitnessProfile", JSON.stringify(form));
+  saveProfile(form);
 
   navigate("/dashboard");
 };

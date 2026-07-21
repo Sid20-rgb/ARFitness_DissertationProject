@@ -11,16 +11,20 @@ import { loadSessions, saveSessions } from "./data/storage";
 
 export default function App() {
   const [sessions, setSessions] = useState([]);
+  const [profile, setProfile] = useState(null);
 
-  useEffect(() => {
-    setSessions(loadSessions());
-  }, []);
+  // useEffect(() => {
+  //   setSessions(loadSessions());
+  // }, []);
 
-  const addSession = (session) => {
-    const updated = [...sessions, session];
-    setSessions(updated);
-    saveSessions(updated);
-  };
+  // const addSession = (session) => {
+  //   const updated = [...sessions, session];
+  //   setSessions(updated);
+  //   saveSessions(updated);
+  // };
+const addSession = (session) => {
+  setSessions((prev) => [...prev, session]);
+};
 
   return (
     <AuthProvider>
@@ -29,10 +33,10 @@ export default function App() {
 
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Setup />} />
+          <Route path="/" element={<Setup saveProfile={setProfile}/>} />
           <Route path="/workout" element={<PredictionWorkout saveSession={addSession} />} />
           <Route path="/data-collection" element={<DataCollectionWorkout saveSession={addSession} />} />
-          <Route path="/dashboard" element={<Dashboard sessions={sessions} />} />
+          <Route path="/dashboard" element={<Dashboard sessions={sessions} profile={profile}/>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

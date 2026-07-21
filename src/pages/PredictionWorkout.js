@@ -6,7 +6,7 @@ import ExerciseModelViewer from "../components/ExerciseModelViewer";
 import LiveAnalysisPanel from "../components/LiveAnalysisPanel";
 import { analyseBicepCurl } from "../exercises/bicepCurl";
 import { analyseSquat } from "../exercises/squat";
-
+import { useWorkout } from "../context/WorkoutContext";
 
 import { useAuth } from "../context/AuthContext";
 import {
@@ -17,15 +17,14 @@ import {
   loadRandomForestModel,
   predictRandomForest,
 } from "../ml/randomForestPredictor";
-import { saveWorkoutSession } from "../services/sessionService";
 import { createMetrics, summarise, updateFrame } from "../utils/metrics";
 import usePose from "../vision/usePose";
 
-import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
 import SquatTrainer from "../components/SquatTrainer";
 
-export default function PredictionWorkout() {
+export default function PredictionWorkout({saveSession}) {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const frameSkipRef = useRef(0);
@@ -182,9 +181,7 @@ export default function PredictionWorkout() {
       latestLandmarksRef.current &&
       currentModel
     ) {
-      console.log(
-  metricsRef.current.completedRep
-);
+      console.log(metricsRef.current.completedRep);
       const landmarksForML =
         metricsRef.current.completedRep?.bestLandmarks ||
         latestLandmarksRef.current;
@@ -229,25 +226,69 @@ export default function PredictionWorkout() {
     setValidReps(0);
   };
 
-  const finishSession = async () => {
-    if (!currentUser) return;
+  // const finishSession = async () => {
+  //   if (!currentUser) return;
 
-    const report = summarise(metricsRef.current);
+  //   const report = summarise(metricsRef.current);
 
-    const session = {
-      date: new Date().toLocaleDateString(),
-      exercise,
-      correctReps: validReps,
-      duration: report.duration,
-      fps: report.fps,
-      avgAngle: report.avgAngle,
-      estimatedCalories: Number((validReps * 0.32).toFixed(2)),
-    };
+  //   const session = {
+  //     date: new Date().toLocaleDateString(),
+  //     exercise,
+  //     correctReps: validReps,
+  //     duration: report.duration,
+  //     fps: report.fps,
+  //     avgAngle: report.avgAngle,
+  //     estimatedCalories: Number((validReps * 0.32).toFixed(2)),
+  //   };
 
-    await saveWorkoutSession(currentUser.uid, session);
+  //   await saveWorkoutSession(currentUser.uid, session);
 
-    alert("Workout session saved.");
-  };
+  //   alert("Workout session saved.");
+  // };
+
+const finishSession = () => {
+  const report = summarise(metricsRef.current);
+
+ const session = {
+  date: new Date().toLocaleDateString(),
+  exercise,
+  correctReps: validReps,
+  duration: report.duration,
+  fps: report.fps,
+  avgAngle: report.avgAngle,
+  estimatedCalories: Number((validReps * 0.32).toFixed(2)),
+};
+
+saveSession(session);
+
+alert("Workout completed.");
+};
+  // const finishSession = async () => {
+  //   if (!currentUser) return;
+
+  //   const report = summarise(metricsRef.current);
+
+  //   const session = {
+  //     date: new Date().toLocaleDateString(),
+  //     exercise,
+  //     correctReps: validReps,
+  //     duration: report.duration,
+  //     fps: report.fps,
+  //     avgAngle: report.avgAngle,
+  //     estimatedCalories: Number((validReps * 0.32).toFixed(2)),
+  //   };
+
+  //   const existingSessions =
+  //     JSON.parse(localStorage.getItem("workoutSessions")) || [];
+
+  //   existingSessions.push(session);
+
+  //   localStorage.setItem("workoutSessions", JSON.stringify(existingSessions));
+
+  //   alert("Workout completed.");
+
+  //   alert("Workout session saved.");
+  // };
 
   return (
     <div style={styles.page}>
@@ -289,42 +330,27 @@ export default function PredictionWorkout() {
             <canvas ref={canvasRef} style={styles.canvas} />
           </div> */}
           <div style={styles.videoWrapper}>
+            <Webcam ref={webcamRef} style={styles.webcam} />
 
-    <Webcam
-        ref={webcamRef}
-        style={styles.webcam}
-    />
+            <canvas ref={canvasRef} style={styles.canvas} />
 
-    <canvas
-        ref={canvasRef}
-        style={styles.canvas}
-    />
+            {exercise === "squat" && (
+              <div style={styles.threeOverlay}>
+                <Canvas
+                  camera={{ position: [0, 1.5, 4], fov: 45 }}
+                  gl={{ alpha: true }}
+                >
+                  <ambientLight intensity={1} />
 
-    {exercise === "squat" && (
-        <div style={styles.threeOverlay}>
-            <Canvas camera={{ position: [0, 1.5, 4], fov: 45 }}
-             gl={{ alpha: true }}
-            >
+                  <directionalLight position={[5, 5, 5]} intensity={2} />
 
-                <ambientLight intensity={1} />
+                  <SquatTrainer landmarks={trainerLandmarks} />
 
-                <directionalLight
-                    position={[5, 5, 5]}
-                    intensity={2}
-                />
-
-                <SquatTrainer landmarks={trainerLandmarks} />
-
-                <OrbitControls
-                    enableZoom={false}
-                    enablePan={false}
-                />
-
-            </Canvas>
-        </div>
-    )}
-
-</div>
+                  <OrbitControls enableZoom={false} enablePan={false} />
+                </Canvas>
+              </div>
+            )}
+          </div>
 
           <div style={styles.repBox}>
             <p>Total Correct Reps</p>
@@ -517,5 +543,5 @@ const styles = {
     inset: 0,
     pointerEvents: "none",
     background: "transparent",
-},
+  },
 };

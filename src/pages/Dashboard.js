@@ -1,21 +1,18 @@
-import { useEffect, useState } from "react";
 import {
-  Chart as ChartJS,
   BarElement,
   CategoryScale,
-  LinearScale,
-  Tooltip,
+  Chart as ChartJS,
   Legend,
+  LinearScale,
   LineElement,
   PointElement,
+  Tooltip,
 } from "chart.js";
-
+import { useEffect, useState } from "react";
+import { useWorkout } from "../context/WorkoutContext";
 import { Bar, Line } from "react-chartjs-2";
 
-
 import { useAuth } from "../context/AuthContext";
-import { getUserProfile } from "../services/profileService";
-import { getWorkoutSessions } from "../services/sessionService";
 
 ChartJS.register(
   BarElement,
@@ -24,28 +21,49 @@ ChartJS.register(
   Tooltip,
   Legend,
   LineElement,
-  PointElement
+  PointElement,
 );
 
-export default function Dashboard() {
+export default function Dashboard({sessions, profile}) {
   const { currentUser } = useAuth();
 
-  const [profile, setProfile] = useState(null);
-  const [sessions, setSessions] = useState([]);
+  // const [profile, setProfile] = useState(null);
+  
+  // const { sessions } = useWorkout();
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!currentUser) return;
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     if (!currentUser) return;
 
-      const userProfile = await getUserProfile(currentUser.uid);
-      const userSessions = await getWorkoutSessions(currentUser.uid);
+  //     const userProfile = await getUserProfile(currentUser.uid);
+  //     const userSessions = await getWorkoutSessions(currentUser.uid);
 
-      setProfile(userProfile);
-      setSessions(userSessions);
-    };
+  //     setProfile(userProfile);
+  //     setSessions(userSessions);
+  //   };
 
-    loadData();
-  }, [currentUser]);
+  //   loadData();
+  // }, [currentUser]);
+
+  // useEffect(() => {
+  //   const storedProfile = localStorage.getItem("fitnessProfile");
+
+  //   if (storedProfile) {
+  //     setProfile(JSON.parse(storedProfile));
+  //   }
+
+  //   const sessions = JSON.parse(localStorage.getItem("workoutSessions")) || [];
+
+  //   setSessions(sessions);
+  // }, []);
+
+// useEffect(() => {
+//   const storedProfile = localStorage.getItem("fitnessProfile");
+
+//   if (storedProfile) {
+//     setProfile(JSON.parse(storedProfile));
+//   }
+// }, []);
 
   // -------------------------
   // Statistics
@@ -53,62 +71,43 @@ export default function Dashboard() {
 
   const totalCorrectReps = sessions.reduce(
     (sum, s) => sum + Number(s.correctReps || 0),
-    0
+    0,
   );
 
   const totalCalories = sessions.reduce(
     (sum, s) => sum + Number(s.estimatedCalories || 0),
-    0
+    0,
   );
 
   const currentWeight = Number(profile?.weight || 0);
   const goalWeight = Number(profile?.goalWeight || 0);
 
-  const weightDifference = Math.abs(
-    currentWeight - goalWeight
-  );
+  const weightDifference = Math.abs(currentWeight - goalWeight);
 
   const caloriesNeeded = weightDifference * 7700;
 
-  const avgCalories =
-    sessions.length > 0
-      ? totalCalories / sessions.length
-      : 0;
+  const avgCalories = sessions.length > 0 ? totalCalories / sessions.length : 0;
 
   const estimatedSessions =
-    avgCalories > 0
-      ? Math.ceil(caloriesNeeded / avgCalories)
-      : null;
+    avgCalories > 0 ? Math.ceil(caloriesNeeded / avgCalories) : null;
 
   const goalProgress =
     currentWeight > goalWeight
-      ? Math.min(
-          ((currentWeight - goalWeight) /
-            currentWeight) *
-            100,
-          100
-        )
-      : Math.min(
-          (currentWeight / goalWeight) * 100,
-          100
-        );
+      ? Math.min(((currentWeight - goalWeight) / currentWeight) * 100, 100)
+      : Math.min((currentWeight / goalWeight) * 100, 100);
 
   // -------------------------
   // Charts
   // -------------------------
 
   const barData = {
-    labels: sessions.map(
-      (_, i) => `Session ${i + 1}`
-    ),
+    labels: sessions.map((_, i) => `Session ${i + 1}`),
 
     datasets: [
       {
         label: "Calories Burned",
 
-        data: sessions.map(
-          (s) => s.estimatedCalories
-        ),
+        data: sessions.map((s) => s.estimatedCalories),
 
         backgroundColor: "#22c55e",
 
@@ -118,17 +117,13 @@ export default function Dashboard() {
   };
 
   const lineData = {
-    labels: sessions.map(
-      (_, i) => `Session ${i + 1}`
-    ),
+    labels: sessions.map((_, i) => `Session ${i + 1}`),
 
     datasets: [
       {
         label: "Correct Repetitions",
 
-        data: sessions.map(
-          (s) => s.correctReps
-        ),
+        data: sessions.map((s) => s.correctReps),
 
         borderColor: "#2563eb",
 
@@ -164,14 +159,12 @@ export default function Dashboard() {
       <div style={styles.hero}>
         <div>
           <h1 style={styles.title}>
-            Welcome back,
-            {" "}
+            Welcome back,{" "}
             {profile?.name || currentUser?.displayName || "Athlete"} 👋
           </h1>
 
           <p style={styles.subtitle}>
-            Here's your workout progress.
-            Keep improving your exercise form!
+            Here's your workout progress. Keep improving your exercise form!
           </p>
         </div>
       </div>
@@ -179,39 +172,17 @@ export default function Dashboard() {
       {/* STATISTICS */}
 
       <div style={styles.grid}>
-        <Card
-          title="BMI"
-          value={profile?.bmi || "--"}
-        />
+        <Card title="BMI" value={profile?.bmi || "--"} />
 
-        <Card
-         
-          title="Body Type"
-          value={profile?.bodyType || "--"}
-        />
+        <Card title="Body Type" value={profile?.bodyType || "--"} />
 
-        <Card
-         
-          title="Goal Weight"
-          value={`${profile?.goalWeight || "--"} kg`}
-        />
+        <Card title="Goal Weight" value={`${profile?.goalWeight || "--"} kg`} />
 
-        <Card
-        
-          title="Sessions"
-          value={sessions.length}
-        />
+        <Card title="Sessions" value={sessions.length} />
 
-        <Card
-         
-          title="Correct Reps"
-          value={totalCorrectReps}
-        />
+        <Card title="Correct Reps" value={totalCorrectReps} />
 
-        <Card
-          title="Calories"
-          value={`${totalCalories.toFixed(1)} kcal`}
-        />
+        <Card title="Calories" value={`${totalCalories.toFixed(1)} kcal`} />
       </div>
 
       {/* GOAL */}
@@ -221,46 +192,30 @@ export default function Dashboard() {
 
         <p>
           Current Weight:
-          <strong>
-            {" "}
-            {profile?.weight || "--"} kg
-          </strong>
+          <strong> {profile?.weight || "--"} kg</strong>
         </p>
 
         <p>
           Goal Weight:
-          <strong>
-            {" "}
-            {profile?.goalWeight || "--"} kg
-          </strong>
+          <strong> {profile?.goalWeight || "--"} kg</strong>
         </p>
 
         <p>
           Remaining:
-          <strong>
-            {" "}
-            {weightDifference.toFixed(1)} kg
-          </strong>
+          <strong> {weightDifference.toFixed(1)} kg</strong>
         </p>
 
         {estimatedSessions ? (
           <p>
             Estimated Sessions Required:
-            <strong>
-              {" "}
-              {estimatedSessions}
-            </strong>
+            <strong> {estimatedSessions}</strong>
           </p>
         ) : (
-          <p>
-            Complete more workouts for
-            prediction.
-          </p>
+          <p>Complete more workouts for prediction.</p>
         )}
 
         <ProgressBar value={goalProgress} />
-      
-            </div>
+      </div>
 
       {/* WORKOUT SUMMARY */}
 
@@ -273,20 +228,18 @@ export default function Dashboard() {
           </p>
 
           <p>
-            <strong>Total Correct Reps:</strong>{" "}
-            {totalCorrectReps}
+            <strong>Total Correct Reps:</strong> {totalCorrectReps}
           </p>
 
           <p>
-            <strong>Average Calories:</strong>{" "}
-            {avgCalories.toFixed(2)} kcal
+            <strong>Average Calories:</strong> {avgCalories.toFixed(2)} kcal
           </p>
 
           <p>
             <strong>Latest Session:</strong>{" "}
             {sessions.length
               ? new Date(
-                  sessions[sessions.length - 1].date
+                  sessions[sessions.length - 1].date,
                 ).toLocaleDateString()
               : "N/A"}
           </p>
@@ -302,26 +255,17 @@ export default function Dashboard() {
 
           <p>
             Body Type:
-            <strong>
-              {" "}
-              {profile?.bodyType || "--"}
-            </strong>
+            <strong> {profile?.bodyType || "--"}</strong>
           </p>
 
           <p>
             Calories Burned:
-            <strong>
-              {" "}
-              {totalCalories.toFixed(1)} kcal
-            </strong>
+            <strong> {totalCalories.toFixed(1)} kcal</strong>
           </p>
 
           <p>
             Goal Progress:
-            <strong>
-              {" "}
-              {goalProgress.toFixed(0)}%
-            </strong>
+            <strong> {goalProgress.toFixed(0)}%</strong>
           </p>
         </div>
       </div>
@@ -333,29 +277,20 @@ export default function Dashboard() {
           <div style={styles.chartBox}>
             <h2>📈 Correct Repetitions Progress</h2>
 
-            <Line
-              data={lineData}
-              options={chartOptions}
-            />
+            <Line data={lineData} options={chartOptions} />
           </div>
 
           <div style={styles.chartBox}>
             <h2>🔥 Calories Burned</h2>
 
-            <Bar
-              data={barData}
-              options={chartOptions}
-            />
+            <Bar data={barData} options={chartOptions} />
           </div>
         </>
       ) : (
         <div style={styles.empty}>
           <h2>No workout sessions yet.</h2>
 
-          <p>
-            Complete a workout and your progress
-            will appear here.
-          </p>
+          <p>Complete a workout and your progress will appear here.</p>
         </div>
       )}
     </div>
@@ -365,7 +300,6 @@ export default function Dashboard() {
 function Card({ title, value }) {
   return (
     <div style={styles.card}>
-
       <p style={styles.cardTitle}>{title}</p>
 
       <h2 style={styles.cardValue}>{value}</h2>
@@ -390,8 +324,7 @@ const styles = {
   page: {
     minHeight: "100vh",
     padding: "40px",
-    background:
-      "linear-gradient(135deg,#eef2ff 0%,#f8fafc 50%,#dbeafe 100%)",
+    background: "linear-gradient(135deg,#eef2ff 0%,#f8fafc 50%,#dbeafe 100%)",
   },
 
   hero: {
@@ -413,21 +346,21 @@ const styles = {
     marginTop: "12px",
     fontSize: "17px",
   },
-grid: {
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "25px",
-  marginBottom: "35px",
-},
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "25px",
+    marginBottom: "35px",
+  },
 
- card: {
+  card: {
     background: "#111827",
-  padding: "30px",
-  borderRadius: "18px",
-  textAlign: "center",
-  boxShadow: "0 10px 25px rgba(0,0,0,.08)",
-  transition: "all 0.3s ease",
-},
+    padding: "30px",
+    borderRadius: "18px",
+    textAlign: "center",
+    boxShadow: "0 10px 25px rgba(0,0,0,.08)",
+    transition: "all 0.3s ease",
+  },
 
   cardIcon: {
     fontSize: "28px",
@@ -465,15 +398,13 @@ grid: {
 
   progressFill: {
     height: "100%",
-    background:
-      "linear-gradient(90deg,#22c55e,#2563eb)",
+    background: "linear-gradient(90deg,#22c55e,#2563eb)",
     borderRadius: "20px",
   },
 
   summaryGrid: {
     display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fit,minmax(320px,1fr))",
+    gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))",
     gap: "20px",
     marginBottom: "30px",
   },

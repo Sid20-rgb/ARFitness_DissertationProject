@@ -22,7 +22,7 @@ from sklearn.metrics import (
 # 1. LOAD DATASET
 # =========================
 
-DATASET_PATH = "bicep_curl_datasets.csv"
+DATASET_PATH = "bicep_dataset.csv"
 
 df = pd.read_csv(DATASET_PATH)
 
