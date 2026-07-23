@@ -34,22 +34,18 @@ export function analyseSquat(landmarks, state, metrics) {
     state.stage = "standing";
   }
 
-  // User is upright
   if (angle > STAND_ANGLE && state.stage !== "down") {
     state.stage = "standing";
   }
 
-  // User reaches squat depth
   if (angle < SQUAT_ANGLE && state.stage === "standing") {
     state.stage = "down";
   }
 
-  // Count when user comes back up
-// Detect completed rep when user comes back up
 if (angle > STAND_ANGLE && state.stage === "down") {
   state.stage = "standing";
 
-  state.reps += 1;      // ADD THIS BACK
+  state.reps += 1;     
   state.repCompleted = true;
 
   const now = performance.now();

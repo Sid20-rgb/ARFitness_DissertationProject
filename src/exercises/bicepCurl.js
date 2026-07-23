@@ -38,12 +38,10 @@ if (angle > EXTENDED && state.stage !== "up") {
   state.stage = "down";
 }
 
-// Curl completed
 if (angle < FLEXED && state.stage === "down") {
   state.stage = "up";
 }
 
-// Count rep when returning to extension
 if (angle > EXTENDED && state.stage === "up") {
   state.stage = "down";
 
